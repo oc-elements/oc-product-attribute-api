@@ -1,34 +1,114 @@
-<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/oc-core-utils/oc-api-provider-behaviour.html">
 
 <!--
-`oc-product-attribute-api`
-Element to consume Ordercloud&#39;s product attribute api
-
-@demo demo/index.html 
+`oc-local-product-extras-api`
+Element to consume Ordercloud local product attributes API
 -->
-
 <dom-module id="oc-product-attribute-api">
+
   <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
-    <h2>Hello [[prop1]]</h2>
+    <iron-ajax id="getAttributes"></iron-ajax>
+    <iron-ajax id="createAttribute"></iron-ajax>
+    <iron-ajax id="updateAttribute"></iron-ajax>
+    <iron-ajax id="deleteAttribute"></iron-ajax>
+    <iron-ajax id="toggleEnabled"></iron-ajax>
   </template>
 
   <script>
     Polymer({
-
       is: 'oc-product-attribute-api',
+      behaviors: [OC.Behaviours.ApiProvider],
 
-      properties: {
-        prop1: {
-          type: String,
-          value: 'oc-product-attribute-api',
-        },
+      /**
+       * Return all product attributes
+       *
+       * @param showDisabled Boolean
+       * @return {Promise}
+       */
+
+      getAttributes: function(type, showDisabled) {
+        this.$.getAttributes.url = this._url(this._normalizeType(type) + 'attributes');
+        this.$.getAttributes.params = {
+          showDisabled: showDisabled || false
+        };
+        return this._generateRequest(this.$.getAttributes);
       },
+
+      /**
+       * Create product attribute
+       *
+       * @param organisationId Number
+       * @param attribute {name: String, description: String, required: Boolean, options: Array} Object
+       * @param type String
+       * @return {Promise}
+       */
+
+      createAttribute: function(organisationId, attribute, type) {
+        this.$.createAttribute.url = this._url(this._normalizeType(type) + 'attributes/organisation/' + organisationId);
+        this.$.createAttribute.method = "POST";
+        this.$.createAttribute.contentType = "application/json";
+        this.$.createAttribute.body = attribute;
+        return this._generateRequest(this.$.createAttribute);
+      },
+
+      /**
+       * Update existing product attribute
+       *
+       * @param attribute {id: Number, name: String, description: String, required: Boolean, options: Array} Object
+       * @param type String
+       * @return {Promise}
+       */
+
+      updateAttribute: function(attribute, type) {
+        this.$.updateAttribute.url = this._url(this._normalizeType(type) + 'attributes/' + attribute.id);
+        delete attribute.id;
+        this.$.updateAttribute.method = "PUT";
+        this.$.updateAttribute.contentType = "application/json";
+        this.$.updateAttribute.body = attribute;
+        return this._generateRequest(this.$.updateAttribute);
+      },
+
+      /**
+       * Delete existing product attribute
+       *
+       * @param attributeId Number
+       * @param type String
+       * @return {Promise}
+       */
+
+      deleteAttribute: function(attributeId, type) {
+        this.$.deleteAttribute.url = this._url(this._normalizeType(type) + 'attributes/' + attributeId);
+        this.$.deleteAttribute.method = "DELETE";
+        return this._generateRequest(this.$.deleteAttribute);
+      },
+
+      /**
+       * Toggle existing product attribute
+       *
+       * @param attributeId Number
+       * @param enabled Boolean
+       * @param type String
+       * @return {Promise}
+       */
+
+      toggleEnabled: function(attributeId, enabled, type) {
+        this.$.toggleEnabled.url = this._url(
+                this._normalizeType(type) + 'attributes/' + attributeId + '/' + (enabled ? 'enable' : 'disable')
+        );
+        this.$.updateAttribute.method = "PUT";
+        return this._generateRequest(this.$.toggleEnabled);
+      },
+
+      _normalizeType: function(type) {
+        if (type === 'library') {
+          return 'product/library/';
+        }
+        return 'product/';
+      }
 
     });
   </script>
+
 </dom-module>
