@@ -28,8 +28,8 @@ Element to consume Ordercloud local product attributes API
        * @return {Promise}
        */
 
-      getAttributes: function(type, showDisabled) {
-        this.$.getAttributes.url = this._url(this._normalizeType(type) + 'attributes');
+      getAttributes: function(showDisabled) {
+        this.$.getAttributes.url = this._url('product/attributes');
         this.$.getAttributes.params = {
           showDisabled: showDisabled || false
         };
@@ -41,12 +41,11 @@ Element to consume Ordercloud local product attributes API
        *
        * @param organisationId Number
        * @param attribute {name: String, description: String, required: Boolean, options: Array} Object
-       * @param type String
        * @return {Promise}
        */
 
-      createAttribute: function(organisationId, attribute, type) {
-        this.$.createAttribute.url = this._url(this._normalizeType(type) + 'attributes/organisation/' + organisationId);
+      createAttribute: function(organisationId, attribute) {
+        this.$.createAttribute.url = this._url('product/attributes/organisation/' + organisationId);
         this.$.createAttribute.method = "POST";
         this.$.createAttribute.contentType = "application/json";
         this.$.createAttribute.body = attribute;
@@ -57,12 +56,11 @@ Element to consume Ordercloud local product attributes API
        * Update existing product attribute
        *
        * @param attribute {id: Number, name: String, description: String, required: Boolean, options: Array} Object
-       * @param type String
        * @return {Promise}
        */
 
-      updateAttribute: function(attribute, type) {
-        this.$.updateAttribute.url = this._url(this._normalizeType(type) + 'attributes/' + attribute.id);
+      updateAttribute: function(attribute) {
+        this.$.updateAttribute.url = this._url('product/attributes/' + attribute.id);
         delete attribute.id;
         this.$.updateAttribute.method = "PUT";
         this.$.updateAttribute.contentType = "application/json";
@@ -74,12 +72,11 @@ Element to consume Ordercloud local product attributes API
        * Delete existing product attribute
        *
        * @param attributeId Number
-       * @param type String
        * @return {Promise}
        */
 
-      deleteAttribute: function(attributeId, type) {
-        this.$.deleteAttribute.url = this._url(this._normalizeType(type) + 'attributes/' + attributeId);
+      deleteAttribute: function(attributeId) {
+        this.$.deleteAttribute.url = this._url('product/attributes/' + attributeId);
         this.$.deleteAttribute.method = "DELETE";
         return this._generateRequest(this.$.deleteAttribute);
       },
@@ -89,24 +86,16 @@ Element to consume Ordercloud local product attributes API
        *
        * @param attributeId Number
        * @param enabled Boolean
-       * @param type String
        * @return {Promise}
        */
 
-      toggleEnabled: function(attributeId, enabled, type) {
+      toggleEnabled: function(attributeId, enabled) {
         this.$.toggleEnabled.url = this._url(
-                this._normalizeType(type) + 'attributes/' + attributeId + '/' + (enabled ? 'enable' : 'disable')
+                'product/attributes/' + attributeId + '/' + (enabled ? 'enable' : 'disable')
         );
         this.$.updateAttribute.method = "PUT";
         return this._generateRequest(this.$.toggleEnabled);
       },
-
-      _normalizeType: function(type) {
-        if (type === 'library') {
-          return 'product/library/';
-        }
-        return 'product/';
-      }
 
     });
   </script>
