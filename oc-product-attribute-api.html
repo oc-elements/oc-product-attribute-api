@@ -1,6 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
-<link rel="import" href="../oc-core-utils/oc-api-provider-behaviour.html">
+<link rel="import" href="../oc-core-utils/oc-core-utils.html">
 
 <!--
 `oc-local-product-extras-api`
@@ -8,96 +8,101 @@ Element to consume Ordercloud local product attributes API
 -->
 <dom-module id="oc-product-attribute-api">
 
-  <template>
-    <iron-ajax id="getAttributes"></iron-ajax>
-    <iron-ajax id="createAttribute"></iron-ajax>
-    <iron-ajax id="updateAttribute"></iron-ajax>
-    <iron-ajax id="deleteAttribute"></iron-ajax>
-    <iron-ajax id="toggleEnabled"></iron-ajax>
-  </template>
+    <template>
+        <iron-ajax id="getAttributes"></iron-ajax>
+        <iron-ajax id="createAttribute"></iron-ajax>
+        <iron-ajax id="updateAttribute"></iron-ajax>
+        <iron-ajax id="deleteAttribute"></iron-ajax>
+        <iron-ajax id="toggleEnabled"></iron-ajax>
+    </template>
 
-  <script>
-    Polymer({
-      is: 'oc-product-attribute-api',
-      behaviors: [OC.Behaviours.ApiProvider],
+    <script>
+		class OcProductAttributeApi extends Ordercloud.ApiMixin(Polymer.Element) {
+			static get is() {
+				return 'oc-organisation-api';
+			}
 
-      /**
-       * Return all product attributes
-       *
-       * @param showDisabled Boolean
-       * @return {Promise}
-       */
+			static get behaviours() {
+			}
 
-      getAttributes: function(showDisabled) {
-        this.$.getAttributes.url = this._url('product/attributes');
-        this.$.getAttributes.params = {
-          showDisabled: showDisabled || false
-        };
-        return this._generateRequest(this.$.getAttributes);
-      },
+			/**
+			 * Return all product attributes
+			 *
+			 * @param showDisabled Boolean
+			 * @return {Promise}
+			 */
 
-      /**
-       * Create product attribute
-       *
-       * @param organisationId Number
-       * @param attribute {name: String, description: String, required: Boolean, options: Array} Object
-       * @return {Promise}
-       */
+			getAttributes(showDisabled) {
+				this.$.getAttributes.url = this._generateUrl('product/attributes');
+				this.$.getAttributes.params = {
+					showDisabled: showDisabled || false
+				};
+				return this._generateRequest(this.$.getAttributes);
+			}
 
-      createAttribute: function(organisationId, attribute) {
-        this.$.createAttribute.url = this._url('product/attributes/organisation/' + organisationId);
-        this.$.createAttribute.method = "POST";
-        this.$.createAttribute.contentType = "application/json";
-        this.$.createAttribute.body = attribute;
-        return this._generateRequest(this.$.createAttribute);
-      },
+			/**
+			 * Create product attribute
+			 *
+			 * @param organisationId Number
+			 * @param attribute {name: String, description: String, required: Boolean, options: Array} Object
+			 * @return {Promise}
+			 */
 
-      /**
-       * Update existing product attribute
-       *
-       * @param attribute {id: Number, name: String, description: String, required: Boolean, options: Array} Object
-       * @return {Promise}
-       */
+			createAttribute(organisationId, attribute) {
+				this.$.createAttribute.url = this._generateUrl('product/attributes/organisation/' + organisationId);
+				this.$.createAttribute.method = "POST";
+				this.$.createAttribute.contentType = "application/json";
+				this.$.createAttribute.body = attribute;
+				return this._generateRequest(this.$.createAttribute);
+			}
 
-      updateAttribute: function(attribute) {
-        this.$.updateAttribute.url = this._url('product/attributes/' + attribute.id);
-        delete attribute.id;
-        this.$.updateAttribute.method = "PUT";
-        this.$.updateAttribute.contentType = "application/json";
-        this.$.updateAttribute.body = attribute;
-        return this._generateRequest(this.$.updateAttribute);
-      },
+			/**
+			 * Update existing product attribute
+			 *
+			 * @param attribute {id: Number, name: String, description: String, required: Boolean, options: Array} Object
+			 * @return {Promise}
+			 */
 
-      /**
-       * Delete existing product attribute
-       *
-       * @param attributeId Number
-       * @return {Promise}
-       */
+			updateAttribute(attribute) {
+				this.$.updateAttribute.url = this._generateUrl('product/attributes/' + attribute.id);
+				delete attribute.id;
+				this.$.updateAttribute.method = "PUT";
+				this.$.updateAttribute.contentType = "application/json";
+				this.$.updateAttribute.body = attribute;
+				return this._generateRequest(this.$.updateAttribute);
+			}
 
-      deleteAttribute: function(attributeId) {
-        this.$.deleteAttribute.url = this._url('product/attributes/' + attributeId);
-        this.$.deleteAttribute.method = "DELETE";
-        return this._generateRequest(this.$.deleteAttribute);
-      },
+			/**
+			 * Delete existing product attribute
+			 *
+			 * @param attributeId Number
+			 * @return {Promise}
+			 */
 
-      /**
-       * Toggle existing product attribute
-       *
-       * @param attributeId Number
-       * @param enabled Boolean
-       * @return {Promise}
-       */
+			deleteAttribute(attributeId) {
+				this.$.deleteAttribute.url = this._generateUrl('product/attributes/' + attributeId);
+				this.$.deleteAttribute.method = "DELETE";
+				return this._generateRequest(this.$.deleteAttribute);
+			}
 
-      toggleEnabled: function(attributeId, enabled) {
-        this.$.toggleEnabled.url = this._url(
-                'product/attributes/' + attributeId + '/' + (enabled ? 'enable' : 'disable')
-        );
-        this.$.updateAttribute.method = "PUT";
-        return this._generateRequest(this.$.toggleEnabled);
-      },
+			/**
+			 * Toggle existing product attribute
+			 *
+			 * @param attributeId Number
+			 * @param enabled Boolean
+			 * @return {Promise}
+			 */
 
-    });
-  </script>
+			toggleEnabled(attributeId, enabled) {
+				this.$.toggleEnabled.url = this._generateUrl(
+					'product/attributes/' + attributeId + '/' + (enabled ? 'enable' : 'disable')
+				);
+				this.$.updateAttribute.method = "PUT";
+				return this._generateRequest(this.$.toggleEnabled);
+			}
+		}
+
+		window.customElements.define(OcProductAttributeApi.is, OcProductAttributeApi);
+    </script>
 
 </dom-module>
